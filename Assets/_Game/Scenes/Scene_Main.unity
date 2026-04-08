@@ -165,6 +165,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::APIExample.APIController
   _minId: 1
   _maxId: 807
+  _scaleMultiplier: 4
   _iconRawImg: {fileID: 263345629}
   _nameTxt: {fileID: 644493698}
   _idTxt: {fileID: 2143626951}
