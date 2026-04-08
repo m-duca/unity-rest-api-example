@@ -22,6 +22,7 @@ namespace APIExample
         [SerializeField] private TextMeshProUGUI _idTxt;
         [SerializeField] private TextMeshProUGUI[] _typeTxts;
         [SerializeField] private Button _btnReroll;
+        [SerializeField] private AudioSource _cryAudioSource;
 
         // Not serialize
         private const string API_PATH_URL = "https://pokeapi.co/api/v2/pokemon/";
@@ -36,6 +37,8 @@ namespace APIExample
             foreach(TextMeshProUGUI typeTxt in _typeTxts)
                 typeTxt.text = String.Empty;
             
+            _cryAudioSource.clip = null;
+
             Call_GetRandomCharacter();
         }
 
@@ -75,6 +78,7 @@ namespace APIExample
 
             string characterName = infoNode["name"];
             string characterSpriteURL = infoNode["sprites"]["front_default"];
+            string characteAudioURL = infoNode["cries"]["latest"];
             
             JSONNode typesNode = infoNode["types"];
             string[] typesName = new string[typesNode.Count];
@@ -93,6 +97,19 @@ namespace APIExample
 
             _iconRawImg.texture = ScaleTexture(DownloadHandlerTexture.GetContent(characterSpriteRequest), _scaleMultiplier);
             _iconRawImg.texture.filterMode = FilterMode.Point;
+
+            UnityWebRequest characterAudioRequest = UnityWebRequestMultimedia.GetAudioClip(characteAudioURL, AudioType.OGGVORBIS);
+            yield return characterAudioRequest.SendWebRequest();
+            
+            if (characterAudioRequest.isNetworkError || characterAudioRequest.isHttpError)
+            {
+                Debug.LogError($"[APIController] {characterAudioRequest.error}");
+                yield break;
+            }
+
+            AudioClip audioClip = DownloadHandlerAudioClip.GetContent(characterAudioRequest);
+            _cryAudioSource.clip = audioClip;
+            _cryAudioSource.Play();
 
             _nameTxt.text = CapitalizeFirstLetter(characterName);
 
