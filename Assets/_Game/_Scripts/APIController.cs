@@ -34,6 +34,8 @@ namespace APIExample
 
             foreach(TextMeshProUGUI typeTxt in _typeTxts)
                 typeTxt.text = String.Empty;
+            
+            Call_GetRandomCharacter();
         }
 
         private void OnEnable() => _btnReroll.onClick.AddListener(Call_GetRandomCharacter);
@@ -60,7 +62,6 @@ namespace APIExample
             string characterUrl = $"{API_PATH_URL}{id}";
 
             UnityWebRequest characterInfoRequest = UnityWebRequest.Get(characterUrl);
-
             yield return characterInfoRequest.SendWebRequest();
 
             if (characterInfoRequest.isNetworkError || characterInfoRequest.isHttpError)
@@ -68,6 +69,39 @@ namespace APIExample
                 Debug.LogError($"[APIController] {characterInfoRequest.error}");
                 yield break;
             }
+
+            JSONNode infoNode = JSON.Parse(characterInfoRequest.downloadHandler.text);
+
+            string characterName = infoNode["name"];
+            string characterSpriteURL = infoNode["sprites"]["front_default"];
+            
+            JSONNode typesNode = infoNode["types"];
+            string[] typesName = new string[typesNode.Count];
+
+            for (int i = 0, j = typesNode.Count - 1; i < typesNode.Count; i++, j--)
+                typesName[j] = typesNode[i]["type"]["name"];
+
+            UnityWebRequest characterSpriteRequest = UnityWebRequestTexture.GetTexture(characterSpriteURL);
+            yield return characterSpriteRequest.SendWebRequest();
+
+            if (characterSpriteRequest.isNetworkError || characterSpriteRequest.isHttpError)
+            {
+                Debug.LogError($"[APIController] {characterSpriteRequest.error}");
+                yield break;
+            }
+
+            _iconRawImg.texture = DownloadHandlerTexture.GetContent(characterSpriteRequest);
+            _iconRawImg.texture.filterMode = FilterMode.Point;
+
+            _nameTxt.text = CapitalizeFirstLetter(characterName);
+
+            for(int i = 0; i < typesName.Length; i++)
+                _typeTxts[i].text = CapitalizeFirstLetter(typesName[i]);
+        }
+
+        private string CapitalizeFirstLetter(string str)
+        {
+            return char.ToUpper(str[0]) + str.Substring(1);
         }
     }
 }
