@@ -660,6 +660,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: addc842740b214047a89e47255fd6648, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::APIExample.CharacterView
+  _scaleTextureMultiplier: 4
   _iconRawImg: {fileID: 263345629}
   _nameTxt: {fileID: 644493698}
   _idTxt: {fileID: 2143626951}
