@@ -167,14 +167,10 @@ MonoBehaviour:
   _maxId: 807
   _scaleMultiplier: 4
   _shinyChance: 50
-  _iconRawImg: {fileID: 263345629}
-  _nameTxt: {fileID: 644493698}
-  _idTxt: {fileID: 2143626951}
-  _typeTxts:
-  - {fileID: 1374475798}
-  - {fileID: 1804807895}
+  _apiPath: https://pokeapi.co/api/v2/pokemon/
+  _characterView: {fileID: 659358708}
+  _characterAudioPlayer: {fileID: 1542756901}
   _btnReroll: {fileID: 2033714028}
-  _cryAudioSource: {fileID: 1542756899}
 --- !u!1 &263345625
 GameObject:
   m_ObjectHideFlags: 0
@@ -620,6 +616,57 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 644493696}
   m_CullTransparentMesh: 1
+--- !u!1 &659358706
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 659358707}
+  - component: {fileID: 659358708}
+  m_Layer: 0
+  m_Name: CharacterView
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &659358707
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 659358706}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &659358708
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 659358706}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: addc842740b214047a89e47255fd6648, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::APIExample.CharacterView
+  _iconRawImg: {fileID: 263345629}
+  _nameTxt: {fileID: 644493698}
+  _idTxt: {fileID: 2143626951}
+  _typesTxt:
+  - {fileID: 1374475798}
+  - {fileID: 1804807895}
+  _characterAudioPlayer: {fileID: 1542756901}
 --- !u!1 &735411715
 GameObject:
   m_ObjectHideFlags: 0
@@ -1093,8 +1140,9 @@ GameObject:
   m_Component:
   - component: {fileID: 1542756900}
   - component: {fileID: 1542756899}
+  - component: {fileID: 1542756901}
   m_Layer: 0
-  m_Name: AudioSource_Cry
+  m_Name: CharacterAudioPlayer
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1212,6 +1260,18 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1542756901
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1542756898}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ce41f58b66fe7a24a963288973c1cb22, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::APIExample.CharacterAudioPlayer
 --- !u!1 &1594383070
 GameObject:
   m_ObjectHideFlags: 0
@@ -1724,3 +1784,4 @@ SceneRoots:
   - {fileID: 491502607}
   - {fileID: 4175423}
   - {fileID: 1542756900}
+  - {fileID: 659358707}
