@@ -166,6 +166,7 @@ MonoBehaviour:
   _minId: 1
   _maxId: 807
   _scaleMultiplier: 4
+  _shinyChance: 20
   _iconRawImg: {fileID: 263345629}
   _nameTxt: {fileID: 644493698}
   _idTxt: {fileID: 2143626951}
@@ -605,7 +606,7 @@ MonoBehaviour:
   m_VertexBufferAutoSizeReduction: 0
   m_useMaxVisibleDescender: 1
   m_pageToDisplay: 1
-  m_margin: {x: 0, y: 0, z: -409.20956, w: -33.30387}
+  m_margin: {x: 0, y: 0, z: -636.3283, w: -33.30387}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
   m_hasFontAssetChanged: 0
@@ -1112,7 +1113,7 @@ AudioSource:
   m_audioClip: {fileID: 0}
   m_Resource: {fileID: 0}
   m_PlayOnAwake: 0
-  m_Volume: 1
+  m_Volume: 0.6
   m_Pitch: 1
   Loop: 0
   Mute: 0
@@ -1156,7 +1157,7 @@ AudioSource:
     m_Curve:
     - serializedVersion: 3
       time: 0
-      value: 0
+      value: 0.2
       inSlope: 0
       outSlope: 0
       tangentMode: 0

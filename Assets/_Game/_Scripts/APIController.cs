@@ -16,6 +16,7 @@ namespace APIExample
         [SerializeField] private int _minId;
         [SerializeField] private int _maxId;
         [SerializeField] private int _scaleMultiplier;
+        [SerializeField] private int _shinyChance;
 
         [Header("References")]
         [SerializeField] private RawImage _iconRawImg;
@@ -79,7 +80,13 @@ namespace APIExample
 
             string characterName = infoNode["name"];
 
-            string characterSpriteURL = infoNode["sprites"]["front_default"];
+            string characterSpriteURL;
+
+            if (UnityEngine.Random.Range(0, 101) <= _shinyChance)
+                characterSpriteURL = infoNode["sprites"]["front_shiny"];
+            else
+                characterSpriteURL = infoNode["sprites"]["front_default"];
+
             string characteAudioURL = infoNode["cries"]["latest"];
 
             JSONNode typesNode = infoNode["types"];
