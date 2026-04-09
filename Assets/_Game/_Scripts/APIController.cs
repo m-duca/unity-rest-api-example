@@ -17,6 +17,7 @@ namespace APIExample
         [SerializeField] private int _maxId;
         [SerializeField] private int _scaleMultiplier;
         [SerializeField] private int _shinyChance;
+        [SerializeField] private string apiPath = "https://pokeapi.co/api/v2/pokemon/";
 
         [Header("References")]
         [SerializeField] private RawImage _iconRawImg;
@@ -26,16 +27,13 @@ namespace APIExample
         [SerializeField] private Button _btnReroll;
         [SerializeField] private AudioSource _cryAudioSource;
 
-        // Not serialize
-        private const string API_PATH_URL = "https://pokeapi.co/api/v2/pokemon/";
-
         private void Start()
         {
             _iconRawImg.texture = Texture2D.blackTexture;
 
             _nameTxt.text = String.Empty;
             _idTxt.text = String.Empty;
-            SetAlpha(_idTxt, 0);
+            UtilitiesUI.SetAlpha(_idTxt, 0);
 
             foreach (TextMeshProUGUI typeTxt in _typeTxts)
                 typeTxt.text = String.Empty;
@@ -57,7 +55,7 @@ namespace APIExample
 
             _nameTxt.text = "■ Waiting...";
             _idTxt.text = $"# {randomId}";
-            SetAlpha(_idTxt, 0);
+            UtilitiesUI.SetAlpha(_idTxt, 0);
 
             foreach (TextMeshProUGUI typeTxt in _typeTxts)
                 typeTxt.text = String.Empty;
@@ -67,7 +65,7 @@ namespace APIExample
 
         private IEnumerator GetCharacterById_Coroutine(int id)
         {
-            string characterUrl = $"{API_PATH_URL}{id}";
+            string characterUrl = $"{apiPath}{id}";
 
             UnityWebRequest characterInfoRequest = UnityWebRequest.Get(characterUrl);
             yield return characterInfoRequest.SendWebRequest();
@@ -86,13 +84,13 @@ namespace APIExample
             if (UnityEngine.Random.Range(0, 101) <= _shinyChance)
             {
                 _nameTxt.color = Color.yellow;
-                characterName = "* " + CapitalizeFirstLetter(infoNode["name"]);
+                characterName = "* " + UtilitiesUI.CapitalizeFirstLetter(infoNode["name"]);
                 characterSpriteURL = infoNode["sprites"]["front_shiny"];
             }
             else
             {
                 _nameTxt.color = Color.white;
-                characterName = "■ " + CapitalizeFirstLetter(infoNode["name"]);
+                characterName = "■ " + UtilitiesUI.CapitalizeFirstLetter(infoNode["name"]);
                 characterSpriteURL = infoNode["sprites"]["front_default"];
             }
 
@@ -102,7 +100,7 @@ namespace APIExample
             string[] typesName = new string[typesNode.Count];
 
             for (int i = 0, j = typesNode.Count - 1; i < typesNode.Count; i++, j--)
-                typesName[j] = "▪ " + CapitalizeFirstLetter(typesNode[i]["type"]["name"]);
+                typesName[j] = "▪ " + UtilitiesUI.CapitalizeFirstLetter(typesNode[i]["type"]["name"]);
 
             UnityWebRequest characterSpriteRequest = UnityWebRequestTexture.GetTexture(characterSpriteURL);
             yield return characterSpriteRequest.SendWebRequest();
@@ -113,7 +111,7 @@ namespace APIExample
                 yield break;
             }
 
-            _iconRawImg.texture = ScaleTexture(DownloadHandlerTexture.GetContent(characterSpriteRequest), _scaleMultiplier);
+            _iconRawImg.texture = UtilitiesUI.ScaleTexture(DownloadHandlerTexture.GetContent(characterSpriteRequest), _scaleMultiplier);
             _iconRawImg.texture.filterMode = FilterMode.Point;
 
             UnityWebRequest characterAudioRequest = UnityWebRequestMultimedia.GetAudioClip(characteAudioURL, AudioType.OGGVORBIS);
@@ -128,45 +126,23 @@ namespace APIExample
             AudioClip audioClip = DownloadHandlerAudioClip.GetContent(characterAudioRequest);
             _cryAudioSource.clip = audioClip;
 
-            _nameTxt.text = CapitalizeFirstLetter(characterName);
+            _nameTxt.text = UtilitiesUI.CapitalizeFirstLetter(characterName);
 
             for (int i = 0; i < typesName.Length; i++)
-                _typeTxts[i].text = CapitalizeFirstLetter(typesName[i]);
+                _typeTxts[i].text = UtilitiesUI.CapitalizeFirstLetter(typesName[i]);
 
             PlayAnimation();
-        }
-
-        private string CapitalizeFirstLetter(string str)
-        {
-            return char.ToUpper(str[0]) + str.Substring(1);
-        }
-
-        private Texture2D ScaleTexture(Texture2D src, int scale)
-        {
-            Texture2D result = new Texture2D(src.width * scale, src.height * scale);
-            result.filterMode = FilterMode.Point;
-
-            for (int y = 0; y < result.height; y++)
-            {
-                for (int x = 0; x < result.width; x++)
-                {
-                    result.SetPixel(x, y, src.GetPixel(x / scale, y / scale));
-                }
-            }
-
-            result.Apply();
-            return result;
         }
 
         private void PlayAnimation()
         {
             // Reset
-            SetAlpha(_iconRawImg, 0);
-            SetAlpha(_nameTxt, 0);
-            SetAlpha(_idTxt, 0);
+            UtilitiesUI.SetAlpha(_iconRawImg, 0);
+            UtilitiesUI.SetAlpha(_nameTxt, 0);
+            UtilitiesUI.SetAlpha(_idTxt, 0);
 
             foreach (var t in _typeTxts)
-                SetAlpha(t, 0);
+                UtilitiesUI.SetAlpha(t, 0);
 
             RectTransform rt = _iconRawImg.rectTransform;
             rt.localScale = Vector3.zero;
@@ -204,13 +180,6 @@ namespace APIExample
             {
                 _cryAudioSource.Play();
             }));
-        }
-
-        private void SetAlpha(Graphic g, float alpha)
-        {
-            Color c = g.color;
-            c.a = alpha;
-            g.color = c;
         }
     }
 }
