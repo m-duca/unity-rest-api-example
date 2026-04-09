@@ -3,9 +3,6 @@ using System.Collections;
 using UnityEngine.Networking;
 using SimpleJSON;
 using UnityEngine.UI;
-using TMPro;
-using System;
-using DG.Tweening;
 
 namespace APIExample
 {
@@ -17,168 +14,99 @@ namespace APIExample
         [SerializeField] private int _maxId;
         [SerializeField] private int _scaleMultiplier;
         [SerializeField] private int _shinyChance;
-        [SerializeField] private string apiPath = "https://pokeapi.co/api/v2/pokemon/";
+        [SerializeField] private string _apiPath = "https://pokeapi.co/api/v2/pokemon/";
 
         [Header("References")]
-        [SerializeField] private RawImage _iconRawImg;
-        [SerializeField] private TextMeshProUGUI _nameTxt;
-        [SerializeField] private TextMeshProUGUI _idTxt;
-        [SerializeField] private TextMeshProUGUI[] _typeTxts;
-        [SerializeField] private Button _btnReroll;
+        [SerializeField] private CharacterView _characterView;
         [SerializeField] private CharacterAudioPlayer _characterAudioPlayer;
+        [SerializeField] private Button _btnReroll;
 
-        private void Start()
+        private void Start() => LoadRandomCharacter();
+
+        private void OnEnable() => _btnReroll.onClick.AddListener(LoadRandomCharacter);
+
+        private void OnDisable() => _btnReroll.onClick.RemoveListener(LoadRandomCharacter);
+
+        private void LoadRandomCharacter()
         {
-            _iconRawImg.texture = Texture2D.blackTexture;
+            int randomId = Random.Range(_minId, _maxId + 1);
 
-            _nameTxt.text = String.Empty;
-            _idTxt.text = String.Empty;
-            UtilitiesUI.SetAlpha(_idTxt, 0);
+            _characterView.ResetView(randomId);
 
-            foreach (TextMeshProUGUI typeTxt in _typeTxts)
-                typeTxt.text = String.Empty;
-
-            Call_GetRandomCharacter();
+            StartCoroutine(GetCharacter_Coroutine(randomId));
         }
 
-        private void OnEnable() => _btnReroll.onClick.AddListener(Call_GetRandomCharacter);
-
-        private void OnDisable() => _btnReroll.onClick.RemoveListener(Call_GetRandomCharacter);
-
-        private void Call_GetRandomCharacter()
+        private IEnumerator GetCharacter_Coroutine(int id)
         {
-            int randomId = UnityEngine.Random.Range(_minId, _maxId + 1);
+            string url = $"{_apiPath}{id}";
 
-            _iconRawImg.texture = Texture2D.blackTexture;
+            UnityWebRequest characterRequest = UnityWebRequest.Get(url);
+            yield return characterRequest.SendWebRequest();
 
-            _nameTxt.text = "■ Waiting...";
-            _idTxt.text = $"# {randomId}";
-            UtilitiesUI.SetAlpha(_idTxt, 0);
-
-            foreach (TextMeshProUGUI typeTxt in _typeTxts)
-                typeTxt.text = String.Empty;
-
-            StartCoroutine(GetCharacterById_Coroutine(randomId));
-        }
-
-        private IEnumerator GetCharacterById_Coroutine(int id)
-        {
-            string characterUrl = $"{apiPath}{id}";
-
-            UnityWebRequest characterInfoRequest = UnityWebRequest.Get(characterUrl);
-            yield return characterInfoRequest.SendWebRequest();
-
-            if (characterInfoRequest.isNetworkError || characterInfoRequest.isHttpError)
+            if (characterRequest.result == UnityWebRequest.Result.ConnectionError ||
+                characterRequest.result == UnityWebRequest.Result.ProtocolError)
             {
-                Debug.LogError($"[APIController] {characterInfoRequest.error}");
+                Debug.LogError($"[APIController] {characterRequest.error}");
                 yield break;
             }
 
-            JSONNode infoNode = JSON.Parse(characterInfoRequest.downloadHandler.text);
+            JSONNode json = JSON.Parse(characterRequest.downloadHandler.text);
 
-            string characterName;
-            string characterSpriteURL;
-            
-            if (UnityEngine.Random.Range(0, 101) <= _shinyChance)
-            {
-                _nameTxt.color = Color.yellow;
-                characterName = "* " + UtilitiesUI.CapitalizeFirstLetter(infoNode["name"]);
-                characterSpriteURL = infoNode["sprites"]["front_shiny"];
-            }
-            else
-            {
-                _nameTxt.color = Color.white;
-                characterName = "■ " + UtilitiesUI.CapitalizeFirstLetter(infoNode["name"]);
-                characterSpriteURL = infoNode["sprites"]["front_default"];
-            }
+            bool isShiny = Random.Range(0, 101) <= _shinyChance;
 
-            string characteAudioURL = infoNode["cries"]["latest"];
+            string name = json["name"];
+            string spriteUrl = isShiny
+                ? json["sprites"]["front_shiny"]
+                : json["sprites"]["front_default"];
 
-            JSONNode typesNode = infoNode["types"];
-            string[] typesName = new string[typesNode.Count];
+            string cryUrl = json["cries"]["latest"];
+
+            // Types
+            JSONNode typesNode = json["types"];
+            string[] types = new string[typesNode.Count];
 
             for (int i = 0, j = typesNode.Count - 1; i < typesNode.Count; i++, j--)
-                typesName[j] = "▪ " + UtilitiesUI.CapitalizeFirstLetter(typesNode[i]["type"]["name"]);
-
-            UnityWebRequest characterSpriteRequest = UnityWebRequestTexture.GetTexture(characterSpriteURL);
-            yield return characterSpriteRequest.SendWebRequest();
-
-            if (characterSpriteRequest.isNetworkError || characterSpriteRequest.isHttpError)
             {
-                Debug.LogError($"[APIController] {characterSpriteRequest.error}");
+                types[j] = "▪ " + UtilitiesUI.CapitalizeFirstLetter(typesNode[i]["type"]["name"]);
+            }
+
+            // Name
+            string formattedName = (isShiny ? "* " : "■ ") +
+                                   UtilitiesUI.CapitalizeFirstLetter(name);
+
+            // Texture Request
+            UnityWebRequest textureRequest = UnityWebRequestTexture.GetTexture(spriteUrl);
+            yield return textureRequest.SendWebRequest();
+
+            if (textureRequest.result == UnityWebRequest.Result.ConnectionError ||
+                textureRequest.result == UnityWebRequest.Result.ProtocolError)
+            {
+                Debug.LogError($"[APIController] {textureRequest.error}");
                 yield break;
             }
 
-            _iconRawImg.texture = UtilitiesUI.ScaleTexture(DownloadHandlerTexture.GetContent(characterSpriteRequest), _scaleMultiplier);
-            _iconRawImg.texture.filterMode = FilterMode.Point;
-
-            UnityWebRequest characterAudioRequest = UnityWebRequestMultimedia.GetAudioClip(characteAudioURL, AudioType.OGGVORBIS);
-            yield return characterAudioRequest.SendWebRequest();
-
-            if (characterAudioRequest.isNetworkError || characterAudioRequest.isHttpError)
-            {
-                Debug.LogError($"[APIController] {characterAudioRequest.error}");
-                yield break;
-            }
-
-            AudioClip audioClip = DownloadHandlerAudioClip.GetContent(characterAudioRequest);
-            _characterAudioPlayer.SetAudioClip(audioClip);
-
-            _nameTxt.text = UtilitiesUI.CapitalizeFirstLetter(characterName);
-
-            for (int i = 0; i < typesName.Length; i++)
-                _typeTxts[i].text = UtilitiesUI.CapitalizeFirstLetter(typesName[i]);
-
-            PlayAnimation();
-        }
-
-        private void PlayAnimation()
-        {
-            // Reset
-            UtilitiesUI.SetAlpha(_iconRawImg, 0);
-            UtilitiesUI.SetAlpha(_nameTxt, 0);
-            UtilitiesUI.SetAlpha(_idTxt, 0);
-
-            foreach (var t in _typeTxts)
-                UtilitiesUI.SetAlpha(t, 0);
-
-            RectTransform rt = _iconRawImg.rectTransform;
-            rt.localScale = Vector3.zero;
-            rt.anchoredPosition = Vector2.zero;
-            rt.rotation = Quaternion.identity;
-
-            Sequence seq = DOTween.Sequence();
-
-            // Scale + fade
-            seq.Append(rt.DOScale(1f, 0.2f).SetEase(Ease.OutBack));
-            seq.Join(_iconRawImg.DOFade(1, 0.2f));
-
-            // Sway
-            seq.Append(
-                rt.DORotate(new Vector3(0, 0, 10f), 0.15f)
-                  .SetLoops(4, LoopType.Yoyo)
-                  .SetEase(Ease.InOutSine)
+            Texture2D texture = UtilitiesUI.ScaleTexture(
+                DownloadHandlerTexture.GetContent(textureRequest),
+                _scaleMultiplier
             );
 
-            seq.Append(_nameTxt.DOFade(1, 0.2f));
-            seq.Join(_idTxt.DOFade(1, 0.2f));
+            // Audio Clip Request
+            UnityWebRequest audioRequest = UnityWebRequestMultimedia.GetAudioClip(cryUrl, AudioType.OGGVORBIS);
+            yield return audioRequest.SendWebRequest();
 
-            foreach (var types in _typeTxts)
+            if (audioRequest.result == UnityWebRequest.Result.ConnectionError ||
+                audioRequest.result == UnityWebRequest.Result.ProtocolError)
             {
-                seq.Append(types.DOFade(1, 0.15f));
-                seq.Join(
-                    types.rectTransform
-                     .DOLocalMoveY(types.rectTransform.localPosition.y + 10f, 0.15f)
-                     .From()
-                );
+                Debug.LogError($"[APIController] {audioRequest.error}");
+                yield break;
             }
 
-            // Sync SFX
-            seq.Insert(0.2f, DOVirtual.DelayedCall(0f, () =>
-            {
-                _characterAudioPlayer.PlayCurrentAudioClip();
-            }));
+            var clip = DownloadHandlerAudioClip.GetContent(audioRequest);
+            _characterAudioPlayer.SetAudioClip(clip);
+
+            _characterView.SetTexture(texture);
+            _characterView.SetData(formattedName, types, isShiny);
+            _characterView.PlayAnimation();
         }
     }
 }
-
