@@ -5,6 +5,7 @@ using SimpleJSON;
 using UnityEngine.UI;
 using TMPro;
 using System;
+using DG.Tweening;
 
 namespace APIExample
 {
@@ -15,7 +16,7 @@ namespace APIExample
         [SerializeField] private int _minId;
         [SerializeField] private int _maxId;
         [SerializeField] private int _scaleMultiplier;
-     
+
         [Header("References")]
         [SerializeField] private RawImage _iconRawImg;
         [SerializeField] private TextMeshProUGUI _nameTxt;
@@ -34,30 +35,30 @@ namespace APIExample
             _nameTxt.text = String.Empty;
             _idTxt.text = String.Empty;
 
-            foreach(TextMeshProUGUI typeTxt in _typeTxts)
+            foreach (TextMeshProUGUI typeTxt in _typeTxts)
                 typeTxt.text = String.Empty;
-            
+
             _cryAudioSource.clip = null;
 
             Call_GetRandomCharacter();
         }
 
         private void OnEnable() => _btnReroll.onClick.AddListener(Call_GetRandomCharacter);
-        
+
         private void OnDisable() => _btnReroll.onClick.RemoveListener(Call_GetRandomCharacter);
 
         private void Call_GetRandomCharacter()
         {
             int randomId = UnityEngine.Random.Range(_minId, _maxId + 1);
-            
+
             _iconRawImg.texture = Texture2D.blackTexture;
 
             _nameTxt.text = "Waiting...";
             _idTxt.text = $"#{randomId}";
 
-            foreach(TextMeshProUGUI typeTxt in _typeTxts)
+            foreach (TextMeshProUGUI typeTxt in _typeTxts)
                 typeTxt.text = String.Empty;
-            
+
             StartCoroutine(GetCharacterById_Coroutine(randomId));
         }
 
@@ -77,9 +78,10 @@ namespace APIExample
             JSONNode infoNode = JSON.Parse(characterInfoRequest.downloadHandler.text);
 
             string characterName = infoNode["name"];
+
             string characterSpriteURL = infoNode["sprites"]["front_default"];
             string characteAudioURL = infoNode["cries"]["latest"];
-            
+
             JSONNode typesNode = infoNode["types"];
             string[] typesName = new string[typesNode.Count];
 
@@ -100,7 +102,7 @@ namespace APIExample
 
             UnityWebRequest characterAudioRequest = UnityWebRequestMultimedia.GetAudioClip(characteAudioURL, AudioType.OGGVORBIS);
             yield return characterAudioRequest.SendWebRequest();
-            
+
             if (characterAudioRequest.isNetworkError || characterAudioRequest.isHttpError)
             {
                 Debug.LogError($"[APIController] {characterAudioRequest.error}");
@@ -109,12 +111,13 @@ namespace APIExample
 
             AudioClip audioClip = DownloadHandlerAudioClip.GetContent(characterAudioRequest);
             _cryAudioSource.clip = audioClip;
-            _cryAudioSource.Play();
 
             _nameTxt.text = CapitalizeFirstLetter(characterName);
 
-            for(int i = 0; i < typesName.Length; i++)
+            for (int i = 0; i < typesName.Length; i++)
                 _typeTxts[i].text = CapitalizeFirstLetter(typesName[i]);
+
+            PlayAnimation();
         }
 
         private string CapitalizeFirstLetter(string str)
@@ -137,6 +140,61 @@ namespace APIExample
 
             result.Apply();
             return result;
+        }
+
+        private void PlayAnimation()
+        {
+            // Reset
+            SetAlpha(_iconRawImg, 0);
+            SetAlpha(_nameTxt, 0);
+            SetAlpha(_idTxt, 0);
+
+            foreach (var t in _typeTxts)
+                SetAlpha(t, 0);
+
+            RectTransform rt = _iconRawImg.rectTransform;
+            rt.localScale = Vector3.zero;
+            rt.anchoredPosition = Vector2.zero;
+            rt.rotation = Quaternion.identity;
+
+            Sequence seq = DOTween.Sequence();
+
+            // Scale + fade
+            seq.Append(rt.DOScale(1f, 0.2f).SetEase(Ease.OutBack));
+            seq.Join(_iconRawImg.DOFade(1, 0.2f));
+
+            // Sway
+            seq.Append(
+                rt.DORotate(new Vector3(0, 0, 10f), 0.15f)
+                  .SetLoops(4, LoopType.Yoyo)
+                  .SetEase(Ease.InOutSine)
+            );
+
+            seq.Append(_nameTxt.DOFade(1, 0.2f));
+            seq.Join(_idTxt.DOFade(1, 0.2f));
+
+            foreach (var types in _typeTxts)
+            {
+                seq.Append(types.DOFade(1, 0.15f));
+                seq.Join(
+                    types.rectTransform
+                     .DOLocalMoveY(types.rectTransform.localPosition.y + 10f, 0.15f)
+                     .From()
+                );
+            }
+
+            // Sync SFX
+            seq.Insert(0.2f, DOVirtual.DelayedCall(0f, () =>
+            {
+                _cryAudioSource.Play();
+            }));
+        }
+
+        private void SetAlpha(Graphic g, float alpha)
+        {
+            Color c = g.color;
+            c.a = alpha;
+            g.color = c;
         }
     }
 }
