@@ -2,12 +2,16 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using DG.Tweening;
+using System;
 
 namespace APIExample
 {
     public class CharacterView : MonoBehaviour
     {
         // Inspector
+        [Header("Parameters")]
+        [SerializeField] private int _scaleTextureMultiplier;
+
         [Header("References")]
         [SerializeField] private RawImage _iconRawImg;
         [SerializeField] private TextMeshProUGUI _nameTxt;
@@ -37,17 +41,15 @@ namespace APIExample
         public void SetData(string name, string[] types, bool isShiny)
         {
             _nameTxt.color = isShiny ? Color.yellow : Color.white;
-            _nameTxt.text = name;
+            _nameTxt.text = (isShiny ? "* " : "■ ") + UtilitiesUI.CapitalizeFirstLetter(name);
 
             for (int i = 0; i < _typesTxt.Length; i++)
-            {
-                _typesTxt[i].text = i < types.Length ? types[i] : "";
-            }
+                _typesTxt[i].text = i < types.Length ? "▪ " + UtilitiesUI.CapitalizeFirstLetter(types[i]) : String.Empty;
         }
 
         public void SetTexture(Texture2D tex)
         {
-            _iconRawImg.texture = tex;
+            _iconRawImg.texture = UtilitiesUI.ScaleTexture(tex, _scaleTextureMultiplier);
             _iconRawImg.texture.filterMode = FilterMode.Point;
         }
 
