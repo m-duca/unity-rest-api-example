@@ -35,6 +35,7 @@ namespace APIExample
 
             _nameTxt.text = String.Empty;
             _idTxt.text = String.Empty;
+            SetAlpha(_idTxt, 0);
 
             foreach (TextMeshProUGUI typeTxt in _typeTxts)
                 typeTxt.text = String.Empty;
@@ -54,8 +55,9 @@ namespace APIExample
 
             _iconRawImg.texture = Texture2D.blackTexture;
 
-            _nameTxt.text = "Waiting...";
-            _idTxt.text = $"#{randomId}";
+            _nameTxt.text = "■ Waiting...";
+            _idTxt.text = $"# {randomId}";
+            SetAlpha(_idTxt, 0);
 
             foreach (TextMeshProUGUI typeTxt in _typeTxts)
                 typeTxt.text = String.Empty;
@@ -78,7 +80,7 @@ namespace APIExample
 
             JSONNode infoNode = JSON.Parse(characterInfoRequest.downloadHandler.text);
 
-            string characterName = infoNode["name"];
+            string characterName = "■ " + CapitalizeFirstLetter(infoNode["name"]);
 
             string characterSpriteURL;
 
@@ -93,7 +95,7 @@ namespace APIExample
             string[] typesName = new string[typesNode.Count];
 
             for (int i = 0, j = typesNode.Count - 1; i < typesNode.Count; i++, j--)
-                typesName[j] = typesNode[i]["type"]["name"];
+                typesName[j] = "▪ " + CapitalizeFirstLetter(typesNode[i]["type"]["name"]);
 
             UnityWebRequest characterSpriteRequest = UnityWebRequestTexture.GetTexture(characterSpriteURL);
             yield return characterSpriteRequest.SendWebRequest();

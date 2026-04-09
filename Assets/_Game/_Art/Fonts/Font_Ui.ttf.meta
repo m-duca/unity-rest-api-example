@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 98a1a4fa3959ebe4aabed7e31a312fba
+guid: 0cdbf9d815d53054bb0976bb56a94589
 TrueTypeFontImporter:
   externalObjects: {}
   serializedVersion: 4
@@ -9,7 +9,7 @@ TrueTypeFontImporter:
   characterPadding: 1
   includeFontData: 1
   fontNames:
-  - PKMN RBYGSC
+  - Pixellari
   fallbackFontReferences: []
   customCharacters: 
   fontRenderingMode: 0
