@@ -55,10 +55,9 @@ namespace APIExample
             bool isShiny = Random.Range(0, 101) <= _shinyChance;
 
             string name = json["name"];
-            string spriteUrl = isShiny
-                ? json["sprites"]["front_shiny"]
-                : json["sprites"]["front_default"];
-
+            
+            string spriteUrl = isShiny ? json["sprites"]["front_shiny"] : json["sprites"]["front_default"];
+            
             string cryUrl = json["cries"]["latest"];
 
             // Types
@@ -66,9 +65,7 @@ namespace APIExample
             string[] types = new string[typesNode.Count];
 
             for (int i = 0, j = typesNode.Count - 1; i < typesNode.Count; i++, j--)
-            {
                 types[j] = "▪ " + UtilitiesUI.CapitalizeFirstLetter(typesNode[i]["type"]["name"]);
-            }
 
             // Name
             string formattedName = (isShiny ? "* " : "■ ") +
@@ -101,7 +98,7 @@ namespace APIExample
                 yield break;
             }
 
-            var clip = DownloadHandlerAudioClip.GetContent(audioRequest);
+            AudioClip clip = DownloadHandlerAudioClip.GetContent(audioRequest);
             _characterAudioPlayer.SetAudioClip(clip);
 
             _characterView.SetTexture(texture);
