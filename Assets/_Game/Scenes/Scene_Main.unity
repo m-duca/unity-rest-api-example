@@ -167,6 +167,7 @@ MonoBehaviour:
   _maxId: 807
   _scaleMultiplier: 4
   _shinyChance: 50
+  apiPath: https://pokeapi.co/api/v2/pokemon/
   _iconRawImg: {fileID: 263345629}
   _nameTxt: {fileID: 644493698}
   _idTxt: {fileID: 2143626951}
@@ -174,7 +175,7 @@ MonoBehaviour:
   - {fileID: 1374475798}
   - {fileID: 1804807895}
   _btnReroll: {fileID: 2033714028}
-  _cryAudioSource: {fileID: 1542756899}
+  _characterAudioPlayer: {fileID: 1542756901}
 --- !u!1 &263345625
 GameObject:
   m_ObjectHideFlags: 0
@@ -1093,8 +1094,9 @@ GameObject:
   m_Component:
   - component: {fileID: 1542756900}
   - component: {fileID: 1542756899}
+  - component: {fileID: 1542756901}
   m_Layer: 0
-  m_Name: AudioSource_Cry
+  m_Name: CharacterAudioPlayer
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1212,6 +1214,18 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1542756901
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1542756898}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ce41f58b66fe7a24a963288973c1cb22, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::APIExample.CharacterAudioPlayer
 --- !u!1 &1594383070
 GameObject:
   m_ObjectHideFlags: 0

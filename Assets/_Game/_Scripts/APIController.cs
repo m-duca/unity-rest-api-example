@@ -25,7 +25,7 @@ namespace APIExample
         [SerializeField] private TextMeshProUGUI _idTxt;
         [SerializeField] private TextMeshProUGUI[] _typeTxts;
         [SerializeField] private Button _btnReroll;
-        [SerializeField] private AudioSource _cryAudioSource;
+        [SerializeField] private CharacterAudioPlayer _characterAudioPlayer;
 
         private void Start()
         {
@@ -37,8 +37,6 @@ namespace APIExample
 
             foreach (TextMeshProUGUI typeTxt in _typeTxts)
                 typeTxt.text = String.Empty;
-
-            _cryAudioSource.clip = null;
 
             Call_GetRandomCharacter();
         }
@@ -124,7 +122,7 @@ namespace APIExample
             }
 
             AudioClip audioClip = DownloadHandlerAudioClip.GetContent(characterAudioRequest);
-            _cryAudioSource.clip = audioClip;
+            _characterAudioPlayer.SetAudioClip(audioClip);
 
             _nameTxt.text = UtilitiesUI.CapitalizeFirstLetter(characterName);
 
@@ -178,7 +176,7 @@ namespace APIExample
             // Sync SFX
             seq.Insert(0.2f, DOVirtual.DelayedCall(0f, () =>
             {
-                _cryAudioSource.Play();
+                _characterAudioPlayer.PlayCurrentAudioClip();
             }));
         }
     }
