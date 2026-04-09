@@ -80,14 +80,21 @@ namespace APIExample
 
             JSONNode infoNode = JSON.Parse(characterInfoRequest.downloadHandler.text);
 
-            string characterName = "■ " + CapitalizeFirstLetter(infoNode["name"]);
-
+            string characterName;
             string characterSpriteURL;
-
+            
             if (UnityEngine.Random.Range(0, 101) <= _shinyChance)
+            {
+                _nameTxt.color = Color.yellow;
+                characterName = "* " + CapitalizeFirstLetter(infoNode["name"]);
                 characterSpriteURL = infoNode["sprites"]["front_shiny"];
+            }
             else
+            {
+                _nameTxt.color = Color.white;
+                characterName = "■ " + CapitalizeFirstLetter(infoNode["name"]);
                 characterSpriteURL = infoNode["sprites"]["front_default"];
+            }
 
             string characteAudioURL = infoNode["cries"]["latest"];
 

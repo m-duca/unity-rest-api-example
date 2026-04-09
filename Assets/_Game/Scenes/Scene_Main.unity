@@ -166,7 +166,7 @@ MonoBehaviour:
   _minId: 1
   _maxId: 807
   _scaleMultiplier: 4
-  _shinyChance: 20
+  _shinyChance: 50
   _iconRawImg: {fileID: 263345629}
   _nameTxt: {fileID: 644493698}
   _idTxt: {fileID: 2143626951}
@@ -767,8 +767,8 @@ Canvas:
   m_GameObject: {fileID: 929405882}
   m_Enabled: 1
   serializedVersion: 3
-  m_RenderMode: 0
-  m_Camera: {fileID: 0}
+  m_RenderMode: 1
+  m_Camera: {fileID: 519420031}
   m_PlaneDistance: 100
   m_PixelPerfect: 0
   m_ReceivesEvents: 1
