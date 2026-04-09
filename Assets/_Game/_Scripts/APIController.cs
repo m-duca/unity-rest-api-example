@@ -53,7 +53,7 @@ namespace APIExample
             JSONNode json = JSON.Parse(characterRequest.downloadHandler.text);
 
             bool isShiny = Random.Range(0, 101) <= _shinyChance;
-
+            
             string name = json["name"];
             
             string spriteUrl = isShiny ? json["sprites"]["front_shiny"] : json["sprites"]["front_default"];
@@ -65,11 +65,7 @@ namespace APIExample
             string[] types = new string[typesNode.Count];
 
             for (int i = 0, j = typesNode.Count - 1; i < typesNode.Count; i++, j--)
-                types[j] = "▪ " + UtilitiesUI.CapitalizeFirstLetter(typesNode[i]["type"]["name"]);
-
-            // Name
-            string formattedName = (isShiny ? "* " : "■ ") +
-                                   UtilitiesUI.CapitalizeFirstLetter(name);
+                types[j] = typesNode[i]["type"]["name"];
 
             // Texture Request
             UnityWebRequest textureRequest = UnityWebRequestTexture.GetTexture(spriteUrl);
@@ -82,10 +78,7 @@ namespace APIExample
                 yield break;
             }
 
-            Texture2D texture = UtilitiesUI.ScaleTexture(
-                DownloadHandlerTexture.GetContent(textureRequest),
-                _scaleMultiplier
-            );
+            Texture2D texture = DownloadHandlerTexture.GetContent(textureRequest);
 
             // Audio Clip Request
             UnityWebRequest audioRequest = UnityWebRequestMultimedia.GetAudioClip(cryUrl, AudioType.OGGVORBIS);
@@ -102,7 +95,7 @@ namespace APIExample
             _characterAudioPlayer.SetAudioClip(clip);
 
             _characterView.SetTexture(texture);
-            _characterView.SetData(formattedName, types, isShiny);
+            _characterView.SetData(name, types, isShiny);
             _characterView.PlayAnimation();
         }
     }
